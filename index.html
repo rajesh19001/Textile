@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Textile Cotton Calculator | Count Conversions & Production</title>
+    <style>
+        :root {
+            --bg-body: #0f172a;
+            --bg-card: #1e293b;
+            --bg-input: #334155;
+            --text-main: #f1f5f9;
+            --text-muted: #94a3b8;
+            --accent: #38bdf8;
+            --accent-hover: #0ea5e9;
+            --success: #22c55e;
+            --warning: #eab308;
+            --border: rgba(255,255,255,0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, sans-serif;
+        }
+
+        body {
+            background: var(--bg-body);
+            color: var(--text-main);
+            line-height: 1.6;
+            padding: 2rem 1rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding-bottom: 2rem;
+            border-bottom: 2px solid var(--border);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, var(--accent), var(--success));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+
+        .calculator-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .calc-card {
+            background: var(--bg-card);
+            padding: 2rem;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            transition: all 0.3s ease;
+        }
+
+        .calc-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(56, 189, 248, 0.2);
+            border-color: var(--accent);
+        }
+
+        .calc-card h2 {
+            color: var(--accent);
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .calc-card h2::before {
+            content: '⚙️';
+            font-size: 1.8rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text-main);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.1);
+        }
+
+        input::placeholder {
+            color: var(--text-muted);
+            opacity: 0.5;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(56, 189, 248, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .result-box {
+            margin-top: 1.5rem;
+            padding: 1.5rem;
+            background: rgba(56, 189, 248, 0.1);
+            border: 2px solid var(--accent);
+            border-radius: 8px;
+            display: none;
+        }
+
+        .result-box.show {
+            display: block;
+            animation: slideIn 0.4s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .result-box h3 {
+            color: var(--accent);
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .result-item:last-child {
+            border-bottom: none;
+        }
+
+        .result-label {
+            color: var(--text-muted);
+        }
+
+        .result-value {
+            color: var(--success);
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .info-box {
+            background: rgba(234, 179, 8, 0.1);
+            border-left: 4px solid var(--warning);
+            padding: 1rem;
+            margin-top: 1rem;
+            border-radius: 4px;
+        }
+
+        .info-box p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .info-box p:last-child {
+            margin-bottom: 0;
+        }
+
+        .conversion-table {
+            background: var(--bg-card);
+            padding: 2rem;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            margin-top: 2rem;
+        }
+
+        .conversion-table h3 {
+            color: var(--accent);
+            margin-bottom: 1.5rem;
+            font-size: 1.4rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        th {
+            background: rgba(56, 189, 248, 0.1);
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        tr:hover {
+            background: rgba(255,255,255,0.02);
+        }
+
+        .formula-box {
+            background: var(--bg-input);
+            padding: 1rem;
+            border-radius: 6px;
+            margin-top: 1rem;
+            border-left: 3px solid var(--accent);
+        }
+
+        .formula-box code {
+            color: var(--success);
+            font-family: 'Courier New', monospace;
+            font-size: 0.95rem;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border);
+            color: var(--text-muted);
+        }
+
+        @media (max-width: 768px) {
+            .calculator-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+
+            .calc-card {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🧵 Textile Cotton Calculator</h1>
+            <p class="subtitle">Professional Count Conversions & Production Calculations</p>
+        </header>
+
+        <div class="calculator-grid">
+            <!-- COUNT CONVERSION CALCULATOR -->
+            <div class="calc-card">
+                <h2>Count Conversion</h2>
+                <form id="countConversionForm">
+                    <div class="form-group">
+                        <label for="countValue">Enter Count Value</label>
+                        <input type="number" id="countValue" placeholder="e.g., 30" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="countSystem">From Count System</label>
+                        <select id="countSystem" required>
+                            <option value="ne">English Count (Ne)</option>
+                            <option value="tex">Tex</option>
+                            <option value="denier">Denier</option>
+                            <option value="nm">Metric Count (Nm)</option>
+                            <option value="nec">Cotton Count (NeC)</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn">Convert Counts</button>
+                </form>
+                <div id="countResult" class="result-box">
+                    <h3>Conversion Results</h3>
+                    <div id="countResultContent"></div>
+                </div>
+                <div class="info-box">
+                    <p><strong>Count Systems:</strong></p>
+                    <p>• Ne (English): Hanks per pound (840 yards/hank)</p>
+                    <p>• Tex: Grams per 1000 meters</p>
+                    <p>• Denier: Grams per 9000 meters</p>
+                    <p>• Nm (Metric): Kilometers per kilogram</p>
+                </div>
+            </div>
+
+            <!-- YARN PRODUCTION CALCULATOR -->
+            <div class="calc-card">
+                <h2>Yarn Production</h2>
+                <form id="yarnProductionForm">
+                    <div class="form-group">
+                        <label for="yarnCount">Yarn Count (Ne)</label>
+                        <input type="number" id="yarnCount" placeholder="e.g., 30" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="cottonWeight">Raw Cotton Weight (kg)</label>
+                        <input type="number" id="cottonWeight" placeholder="e.g., 100" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="wastePercentage">Waste Percentage (%)</label>
+                        <input type="number" id="wastePercentage" placeholder="e.g., 15" step="0.1" value="15" required>
+                    </div>
+                    <button type="submit" class="btn">Calculate Production</button>
+                </form>
+                <div id="yarnResult" class="result-box">
+                    <h3>Production Results</h3>
+                    <div id="yarnResultContent"></div>
+                </div>
+                <div class="formula-box">
+                    <code>Yarn Length (meters) = (Net Weight × Count × 1693.55) / 1.693</code>
+                </div>
+            </div>
+
+            <!-- FABRIC PRODUCTION CALCULATOR -->
+            <div class="calc-card">
+                <h2>Fabric Production</h2>
+                <form id="fabricProductionForm">
+                    <div class="form-group">
+                        <label for="fabricLength">Fabric Length (meters)</label>
+                        <input type="number" id="fabricLength" placeholder="e.g., 1000" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="fabricWidth">Fabric Width (inches)</label>
+                        <input type="number" id="fabricWidth" placeholder="e.g., 45" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="fabricGSM">GSM (Grams per Square Meter)</label>
+                        <input type="number" id="fabricGSM" placeholder="e.g., 150" step="0.1" required>
+                    </div>
+                    <button type="submit" class="btn">Calculate Fabric</button>
+                </form>
+                <div id="fabricResult" class="result-box">
+                    <h3>Fabric Results</h3>
+                    <div id="fabricResultContent"></div>
+                </div>
+                <div class="formula-box">
+                    <code>Fabric Weight = Length × Width(m) × GSM / 1000</code>
+                </div>
+            </div>
+
+            <!-- TWIST CALCULATION -->
+            <div class="calc-card">
+                <h2>Twist Per Inch (TPI)</h2>
+                <form id="tpiForm">
+                    <div class="form-group">
+                        <label for="tpiCount">Yarn Count (Ne)</label>
+                        <input type="number" id="tpiCount" placeholder="e.g., 30" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="tpiMultiplier">Twist Multiplier (TM)</label>
+                        <input type="number" id="tpiMultiplier" placeholder="e.g., 4.0" step="0.1" value="4.0" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="yarnType">Yarn Type</label>
+                        <select id="yarnType">
+                            <option value="ring">Ring Spun</option>
+                            <option value="rotor">Rotor Spun</option>
+                            <option value="compact">Compact Spun</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn">Calculate TPI</button>
+                </form>
+                <div id="tpiResult" class="result-box">
+                    <h3>Twist Results</h3>
+                    <div id="tpiResultContent"></div>
+                </div>
+                <div class="info-box">
+                    <p><strong>Typical TM Values:</strong></p>
+                    <p>• Warp yarn: 4.0 - 4.75</p>
+                    <p>• Weft yarn: 3.5 - 4.0</p>
+                    <p>• Carded yarn: 3.5 - 4.2</p>
+                </div>
+            </div>
+
+            <!-- TEX TO Ne QUICK CONVERTER -->
+            <div class="calc-card">
+                <h2>Quick Tex ↔ Ne Converter</h2>
+                <form id="quickTexForm">
+                    <div class="form-group">
+                        <label for="texValue">Tex Value</label>
+                        <input type="number" id="texValue" placeholder="e.g., 20" step="0.01">
+                    </div>
+                    <div class="form-group">
+                        <label for="neValue">Ne Value</label>
+                        <input type="number" id="neValue" placeholder="e.g., 30" step="0.01">
+                    </div>
+                    <button type="button" class="btn" onclick="quickTexToNe()">Convert</button>
+                </form>
+                <div id="quickTexResult" class="result-box">
+                    <h3>Quick Conversion</h3>
+                    <div id="quickTexResultContent"></div>
+                </div>
+                <div class="formula-box">
+                    <code>Ne = 590.5 / Tex | Tex = 590.5 / Ne</code>
+                </div>
+            </div>
+
+            <!-- COTTON BALE CALCULATOR -->
+            <div class="calc-card">
+                <h2>Cotton Bale Calculator</h2>
+                <form id="baleForm">
+                    <div class="form-group">
+                        <label for="baleCount">Number of Bales</label>
+                        <input type="number" id="baleCount" placeholder="e.g., 10" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="baleWeight">Weight per Bale (kg)</label>
+                        <input type="number" id="baleWeight" placeholder="e.g., 170" step="0.1" value="170" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="yarnCountBale">Target Yarn Count (Ne)</label>
+                        <input type="number" id="yarnCountBale" placeholder="e.g., 30" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="wasteBale">Process Waste (%)</label>
+                        <input type="number" id="wasteBale" placeholder="e.g., 12" step="0.1" value="12" required>
+                    </div>
+                    <button type="submit" class="btn">Calculate Bale Output</button>
+                </form>
+                <div id="baleResult" class="result-box">
+                    <h3>Bale Production Results</h3>
+                    <div id="baleResultContent"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CONVERSION TABLE REFERENCE -->
+        <div class="conversion-table">
+            <h3>📊 Quick Reference: Count Conversion Factors</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>From → To</th>
+                        <th>Ne</th>
+                        <th>Tex</th>
+                        <th>Denier</th>
+                        <th>Nm</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Ne</strong></td>
+                        <td>1</td>
+                        <td>590.5 / Ne</td>
+                        <td>5315 / Ne</td>
+                        <td>Ne × 1.693</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Tex</strong></td>
+                        <td>590.5 / Tex</td>
+                        <td>1</td>
+                        <td>Tex × 9</td>
+                        <td>1000 / Tex</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Denier</strong></td>
+                        <td>5315 / Den</td>
+                        <td>Den / 9</td>
+                        <td>1</td>
+                        <td>9000 / Den</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Nm</strong></td>
+                        <td>Nm / 1.693</td>
+                        <td>1000 / Nm</td>
+                        <td>9000 / Nm</td>
+                        <td>1</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <footer>
+            <p>© 2024 Textile Cotton Calculator | Created by M. Rajesh</p>
+            <p style="margin-top: 0.5rem; font-size: 0.9rem;">For Textile Technology Students & Professionals</p>
+        </footer>
+    </div>
+
+    <script>
+        // COUNT CONVERSION
+        document.getElementById('countConversionForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const value = parseFloat(document.getElementById('countValue').value);
+            const system = document.getElementById('countSystem').value;
+            
+            let ne, tex, denier, nm;
+            
+            // Convert input to all systems
+            switch(system) {
+                case 'ne':
+                    ne = value;
+                    tex = 590.5 / ne;
+                    denier = 5315 / ne;
+                    nm = ne * 1.693;
+                    break;
+                case 'tex':
+                    tex = value;
+                    ne = 590.5 / tex;
+                    denier = tex * 9;
+                    nm = 1000 / tex;
+                    break;
+                case 'denier':
+                    denier = value;
+                    ne = 5315 / denier;
+                    tex = denier / 9;
+                    nm = 9000 / denier;
+                    break;
+                case 'nm':
+                    nm = value;
+                    ne = nm / 1.693;
+                    tex = 1000 / nm;
+                    denier = 9000 / nm;
+                    break;
+                case 'nec':
+                    ne = value;
+                    tex = 590.5 / ne;
+                    denier = 5315 / ne;
+                    nm = ne * 1.693;
+                    break;
+            }
+            
+            const resultHTML = `
+                <div class="result-item">
+                    <span class="result-label">English Count (Ne):</span>
+                    <span class="result-value">${ne.toFixed(2)}</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Tex:</span>
+                    <span class="result-value">${tex.toFixed(2)}</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Denier:</span>
+                    <span class="result-value">${denier.toFixed(2)}</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Metric Count (Nm):</span>
+                    <span class="result-value">${nm.toFixed(2)}</span>
+                </div>
+            `;
+            
+            document.getElementById('countResultContent').innerHTML = resultHTML;
+            document.getElementById('countResult').classList.add('show');
+        });
+
+        // YARN PRODUCTION
+        document.getElementById('yarnProductionForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const count = parseFloat(document.getElementById('yarnCount').value);
+            const weight = parseFloat(document.getElementById('cottonWeight').value);
+            const waste = parseFloat(document.getElementById('wastePercentage').value);
+            
+            const netWeight = weight * (1 - waste/100);
+            const yarnLength = (netWeight * count * 1693.55) / 1.693; // meters
+            const yarnWeight = netWeight;
+            const yarnLengthKm = yarnLength / 1000;
+            const hanksProduced = count * netWeight * 2.2046; // in hanks
+            
+            const resultHTML = `
+                <div class="result-item">
+                    <span class="result-label">Net Cotton Weight:</span>
+                    <span class="result-value">${netWeight.toFixed(2)} kg</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Waste:</span>
+                    <span class="result-value">${(weight - netWeight).toFixed(2)} kg</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Yarn Length:</span>
+                    <span class="result-value">${yarnLength.toFixed(2)} m (${yarnLengthKm.toFixed(2)} km)</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Yarn Weight:</span>
+                    <span class="result-value">${yarnWeight.toFixed(2)} kg</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Hanks Produced:</span>
+                    <span class="result-value">${hanksProduced.toFixed(2)}</span>
+                </div>
+            `;
+            
+            document.getElementById('yarnResultContent').innerHTML = resultHTML;
+            document.getElementById('yarnResult').classList.add('show');
+        });
+
+        // FABRIC PRODUCTION
+        document.getElementById('fabricProductionForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const length = parseFloat(document.getElementById('fabricLength').value);
+            const widthInches = parseFloat(document.getElementById('fabricWidth').value);
+            const gsm = parseFloat(document.getElementById('fabricGSM').value);
+            
+            const widthMeters = widthInches * 0.0254;
+            const area = length * widthMeters; // square meters
+            const weight = area * gsm / 1000; // kg
+            const weightPounds = weight * 2.2046;
+            
+            const resultHTML = `
+                <div class="result-item">
+                    <span class="result-label">Fabric Width:</span>
+                    <span class="result-value">${widthMeters.toFixed(3)} m (${widthInches}" inches)</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Fabric Area:</span>
+                    <span class="result-value">${area.toFixed(2)} m²</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Total Fabric Weight:</span>
+                    <span class="result-value">${weight.toFixed(2)} kg (${weightPounds.toFixed(2)} lbs)</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Weight per Meter:</span>
+                    <span class="result-value">${(weight/length*1000).toFixed(2)} g/m</span>
+                </div>
+            `;
+            
+            document.getElementById('fabricResultContent').innerHTML = resultHTML;
+            document.getElementById('fabricResult').classList.add('show');
+        });
+
+        // TPI CALCULATION
+        document.getElementById('tpiForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const count = parseFloat(document.getElementById('tpiCount').value);
+            const tm = parseFloat(document.getElementById('tpiMultiplier').value);
+            const type = document.getElementById('yarnType').value;
+            
+            const tpi = tm * Math.sqrt(count);
+            const tpm = tpi * 39.37; // twists per meter
+            const tpk = tpm * 1000; // twists per km
+            
+            let recommendation = '';
+            if (type === 'ring') {
+                recommendation = 'Ring spun yarn typically has TM: 3.5-4.75';
+            } else if (type === 'rotor') {
+                recommendation = 'Rotor spun yarn typically has TM: 3.2-3.8';
+            } else {
+                recommendation = 'Compact spun yarn typically has TM: 3.8-4.5';
+            }
+            
+            const resultHTML = `
+                <div class="result-item">
+                    <span class="result-label">Twists Per Inch (TPI):</span>
+                    <span class="result-value">${tpi.toFixed(2)}</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Twists Per Meter (TPM):</span>
+                    <span class="result-value">${tpm.toFixed(2)}</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Twists Per Kilometer:</span>
+                    <span class="result-value">${tpk.toFixed(0)}</span>
+                </div>
+                <div style="margin-top: 1rem; padding: 1rem; background: rgba(255,255,255,0.05); border-radius: 6px;">
+                    <p style="color: var(--text-muted); font-size: 0.9rem;">ℹ️ ${recommendation}</p>
+                </div>
+            `;
+            
+            document.getElementById('tpiResultContent').innerHTML = resultHTML;
+            document.getElementById('tpiResult').classList.add('show');
+        });
+
+        // QUICK TEX TO NE CONVERTER
+        function quickTexToNe() {
+            const texValue = document.getElementById('texValue').value;
+            const neValue = document.getElementById('neValue').value;
+            
+            let resultHTML = '';
+            
+            if (texValue && texValue > 0) {
+                const ne = 590.5 / parseFloat(texValue);
+                resultHTML = `
+                    <div class="result-item">
+                        <span class="result-label">Tex ${texValue} =</span>
+                        <span class="result-value">Ne ${ne.toFixed(2)}</span>
+                    </div>
+                `;
+                document.getElementById('neValue').value = ne.toFixed(2);
+            } else if (neValue && neValue > 0) {
+                const tex = 590.5 / parseFloat(neValue);
+                resultHTML = `
+                    <div class="result-item">
+                        <span class="result-label">Ne ${neValue} =</span>
+                        <span class="result-value">Tex ${tex.toFixed(2)}</span>
+                    </div>
+                `;
+                document.getElementById('texValue').value = tex.toFixed(2);
+            } else {
+                resultHTML = '<p style="color: var(--warning);">Please enter either Tex or Ne value</p>';
+            }
+            
+            document.getElementById('quickTexResultContent').innerHTML = resultHTML;
+            document.getElementById('quickTexResult').classList.add('show');
+        }
+
+        // Allow Enter key for quick converter
+        document.getElementById('texValue').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                quickTexToNe();
+            }
+        });
+        
+        document.getElementById('neValue').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                quickTexToNe();
+            }
+        });
+
+        // COTTON BALE CALCULATOR
+        document.getElementById('baleForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const bales = parseFloat(document.getElementById('baleCount').value);
+            const weightPerBale = parseFloat(document.getElementById('baleWeight').value);
+            const count = parseFloat(document.getElementById('yarnCountBale').value);
+            const waste = parseFloat(document.getElementById('wasteBale').value);
+            
+            const totalWeight = bales * weightPerBale;
+            const netWeight = totalWeight * (1 - waste/100);
+            const yarnLength = (netWeight * count * 1693.55) / 1.693; // meters
+            const yarnLengthKm = yarnLength / 1000;
+            
+            const resultHTML = `
+                <div class="result-item">
+                    <span class="result-label">Total Cotton Weight:</span>
+                    <span class="result-value">${totalWeight.toFixed(2)} kg</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Net Weight (after waste):</span>
+                    <span class="result-value">${netWeight.toFixed(2)} kg</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Total Waste:</span>
+                    <span class="result-value">${(totalWeight - netWeight).toFixed(2)} kg</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Yarn Production:</span>
+                    <span class="result-value">${netWeight.toFixed(2)} kg</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Yarn Length:</span>
+                    <span class="result-value">${yarnLengthKm.toFixed(2)} km (${yarnLength.toFixed(0)} m)</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Avg per Bale:</span>
+                    <span class="result-value">${(yarnLengthKm/bales).toFixed(2)} km/bale</span>
+                </div>
+            `;
+            
+            document.getElementById('baleResultContent').innerHTML = resultHTML;
+            document.getElementById('baleResult').classList.add('show');
+        });
+    </script>
+</body>
+</html>
